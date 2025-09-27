@@ -19,6 +19,7 @@ export type Manager = {
 	images : {Image},
 	sprites : {Sprite},
 	editing : boolean,
+	log : string,
 	spriteIndex : number,
 	localEditing : boolean,
 

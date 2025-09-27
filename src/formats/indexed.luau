@@ -32,7 +32,8 @@ function Indexed.Load(data): Indexed
 		local segement = {}
 		segement.length = tonumber(numbers[i])
 		segement.color = tonumber(numbers[i+1])
-		if segement.length ~= nil and segement.color ~= nil then
+		-- color[3] is a hacky way to access LinearColor::A - At time of writing the member isnt accessible in the normal method
+		if segement.length ~= nil and segement.color ~= nil and indexed.pallete[segement.color][3] > 0 then
 			table.insert(indexed.segments, segement)
 		end
 	end
@@ -71,10 +72,9 @@ function Indexed.Blit(self: Indexed, transform: Transform)
 	local size = transform.scale.z / self.resolution.y
 	for i,segment in ipairs(self.segments) do
 
+		local col = self.pallete[segment.color]
 		local p1 = Utils.ApplyTransformation(Vec3.new(0, y-0.5, z+0.5), transform)
 		local p2 = Utils.ApplyTransformation(Vec3.new(0, y-0.5 + ((segment.length)/self.resolution.x), z+0.5), transform)
-
-		local col = self.pallete[segment.color]
 
 		WorldDraw.drawLine(p1, p2, col.R, col.G, col.B, size, 0)
 

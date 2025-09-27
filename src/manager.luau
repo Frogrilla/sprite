@@ -12,6 +12,7 @@ function Manager.Create()
 	manager.sprites = {}
 	manager.spriteIndex = 0
 	manager.editing = true
+	manager.log = ""
 	manager.localEditing = true
 	return manager
 end
@@ -29,21 +30,22 @@ end
 function Manager.OnGui(self: types.Manager)
 	if self.editing then
 		if Gui.button("Render") then
-			print("Blitting sprites")
+			self.log = "Blitting Sprite Images:\n\n"
 			self.editing = false
 			WorldDraw.clear()
 
 			for i,sprite in self.sprites do
-				print("Sprite with id \"" .. sprite.id .. "\" drawing image \"" .. sprite.image.id .. "\"")
+				self.log ..= sprite.id .. "\n"
 
 				-- Error catching by using pcall on the function
 				local blit = function() sprite:Blit() end
 				if pcall(blit) then
-					print("  -> Success")
+					self.log ..= "  -> Success\n\n"
 				else
-					print("  -> Failure")
+					self.log ..= "  -> Failure\n\n"
 				end
 			end
+			print(self.log)
 
 		end
 
@@ -77,6 +79,16 @@ function Manager.OnGui(self: types.Manager)
 			Gui.separatorText("Edit Sprite")
 
 			sprite.id = Gui.inputText("Id", sprite.id)
+
+			if Gui.beginCombo("Change Image", sprite.image.id) then
+				for i,image in ipairs(self.images) do
+					if Gui.selectable(image.id, image.id == sprite.image.id) then
+						sprite.image = image
+						sprite.transform.scale = Vec3.new(0, image.resolution.x, image.resolution.y)
+					end
+				end
+				Gui.endCombo()
+			end
 
 			if Gui.button("Delete " .. Icon.Trash) then
 				table.remove(self.sprites, self.spriteIndex)
@@ -136,6 +148,7 @@ function Manager.OnGui(self: types.Manager)
 		if Gui.button("Edit") then
 			self.editing = true
 		end
+		Gui.text(self.log)
 	end
 end
 

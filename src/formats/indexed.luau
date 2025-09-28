@@ -20,10 +20,10 @@ function Indexed.Load(data): Indexed
 
 	for i,col in ipairs(data.pallete) do
 		table.insert(indexed.pallete, LinearColor.new(
-			col.r,
-			col.g,
-			col.b,
-			col.a
+			col.r/255,
+			col.g/255,
+			col.b/255,
+			col.a/255
 		))
 	end
 

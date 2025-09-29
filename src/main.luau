@@ -1,5 +1,8 @@
 local Manager = require("manager")
+local Presenter = require("Presenter")
+
 local manager = Manager.Create()
+local presenter = Presenter.Create(manager)
 
 local speed = 1000
 local rotEuler = Vec3.zeroVector
@@ -24,6 +27,7 @@ end
 
 function onGui()
 	manager:OnGui()
+	presenter:OnGui()
 end
 
 function tick(dt: number)

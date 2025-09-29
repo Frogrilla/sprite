@@ -130,10 +130,12 @@ function Presenter.Tick(self: Presenter)
 	if user.rightThrusterActive then
 		if not self.justCycled then
 			self:DoCycle(1)
+			self.justCycled = true
 		end
 	elseif user.leftThrusterActive then
 		if not self.justCycled then
 			self:DoCycle(-1)
+			self.justCycled = true
 		end
 	else
 		self.justCycled = false

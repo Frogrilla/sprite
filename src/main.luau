@@ -32,6 +32,7 @@ end
 
 function tick(dt: number)
 	manager:Tick()
+	presenter:Tick()
 
 	local movement = Vec3.zeroVector
 	if Input.getKey(Input.Key.W) then

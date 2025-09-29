@@ -22,8 +22,10 @@ export type Manager = {
 	log : string,
 	spriteIndex : number,
 	localEditing : boolean,
+	scaleFactor : number,
 
 	Create : () -> Manager,
+	RenderAll : (self: Manager) -> nil,
 	OnGui : (self: Manager) -> nil,
 	Tick : (self: Manager) -> nil
 }

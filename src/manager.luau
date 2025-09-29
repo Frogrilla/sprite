@@ -14,6 +14,7 @@ function Manager.Create()
 	manager.editing = true
 	manager.log = ""
 	manager.localEditing = true
+	manager.scaleFactor = 1
 	return manager
 end
 
@@ -27,26 +28,40 @@ function Manager.LoadImages(self: types.Manager, data)
 	end
 end
 
+function Manager.RenderAll(self: types.Manager)
+	self.log = "Blitting Sprite Images:\n\n"
+	self.editing = false
+	WorldDraw.clear()
+
+	for i,sprite in self.sprites do
+		self.log ..= sprite.id .. " : " .. sprite.image.id .. "\n"
+
+		-- Error catching by using pcall on the function
+		local blit = function() sprite:Blit() end
+		if pcall(blit) then
+			self.log ..= "  -> Success\n\n"
+		else
+			self.log ..= "  -> Failure\n\n"
+		end
+	end
+
+	print(self.log)
+end
+
 function Manager.OnGui(self: types.Manager)
+
+	if #self.images == 0 then
+		Gui.text(
+			"No images were found!\n\n"..
+			"Sprite Config Generator must be used in order to import images:\n"..
+			"https://github.com/frogrilla/sprite_config_generator"
+		)
+		return
+	end
+
 	if self.editing then
 		if Gui.button("Render") then
-			self.log = "Blitting Sprite Images:\n\n"
-			self.editing = false
-			WorldDraw.clear()
-
-			for i,sprite in self.sprites do
-				self.log ..= sprite.id .. "\n"
-
-				-- Error catching by using pcall on the function
-				local blit = function() sprite:Blit() end
-				if pcall(blit) then
-					self.log ..= "  -> Success\n\n"
-				else
-					self.log ..= "  -> Failure\n\n"
-				end
-			end
-			print(self.log)
-
+			self:RenderAll()
 		end
 
 		if Gui.beginCombo("##add_sprite", "Add Sprite From Image") then
@@ -78,18 +93,6 @@ function Manager.OnGui(self: types.Manager)
 
 			Gui.separatorText("Edit Sprite")
 
-			sprite.id = Gui.inputText("Id", sprite.id)
-
-			if Gui.beginCombo("Change Image", sprite.image.id) then
-				for i,image in ipairs(self.images) do
-					if Gui.selectable(image.id, image.id == sprite.image.id) then
-						sprite.image = image
-						sprite.transform.scale = Vec3.new(0, image.resolution.x, image.resolution.y)
-					end
-				end
-				Gui.endCombo()
-			end
-
 			if Gui.button("Delete " .. Icon.Trash) then
 				table.remove(self.sprites, self.spriteIndex)
 				self.spriteIndex = 0
@@ -97,6 +100,30 @@ function Manager.OnGui(self: types.Manager)
 			end
 
 			Gui.sameLine()
+
+			if Gui.button("Duplicate " .. Icon.Copy) then
+				table.insert(self.sprites, table.clone(sprite))
+				self.spriteIndex = #self.sprites
+			end
+
+			Gui.text(
+				"Sprite:     " .. sprite.id ..
+				"\nImage:      " .. sprite.image.id ..
+				"\nResolution: " .. sprite.image.resolution.x .. "x" .. sprite.image.resolution.y
+			)
+
+			sprite.id = Gui.inputText("Name", sprite.id)
+
+			if Gui.beginCombo("##change_sprite_image", "Change Image") then
+				for i,image in ipairs(self.images) do
+					if Gui.selectable(image.id, image.id == sprite.image.id) then
+						sprite.transform.scale.y *= image.resolution.x / sprite.image.resolution.x
+						sprite.transform.scale.z *= image.resolution.y / sprite.image.resolution.y
+						sprite.image = image
+					end
+				end
+				Gui.endCombo()
+			end
 
 			self.localEditing = Gui.checkbox("Use local space", self.localEditing)
 
@@ -111,6 +138,11 @@ function Manager.OnGui(self: types.Manager)
 			sprite.transform.position += translation
 
 			sprite.transform.scale = Gui.dragFloat3("Scale", sprite.transform.scale, 1, -100000, 100000)
+
+			self.scaleFactor = Gui.dragFloat("Scale Factor", self.scaleFactor, 0.1, 0.1, 2)
+			if Gui.button("Apply Scale") then
+				sprite.transform.scale *= self.scaleFactor
+			end
 
 			--Gui.dragFloat4("Rotation", sprite.transform.rotation, 0, -1, 1)
 
@@ -135,7 +167,7 @@ function Manager.OnGui(self: types.Manager)
 
 			Gui.setItemTooltip("Aligns the sprite with the spectator's orientation")
 
-			Gui.sameLine()
+			-- Gui.sameLine()
 
 			if Gui.button("Locate") then
 				camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
@@ -143,6 +175,15 @@ function Manager.OnGui(self: types.Manager)
 			end
 
 			Gui.setItemTooltip("Brings the camera in front of the sprite and makes it look at it")
+
+			Gui.sameLine()
+
+			if Gui.button("Reset scale") then
+				sprite.transform.scale = Vec3.new(0, sprite.image.resolution.x, sprite.image.resolution.y)
+			end
+
+			Gui.setItemTooltip("Resets the sprite's scale to match its image")
+
 		end
 	else
 		if Gui.button("Edit") then

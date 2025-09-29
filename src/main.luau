@@ -17,9 +17,8 @@ function onTransitionBegin(transitionInfo: Transition)
 	camera.position = transitionInfo.startPosition
 	camera.fieldOfView = transitionInfo.startFieldOfView
 
-	local rot = Quat.fromXZ(transitionInfo.startRotation:getForwardVector(), gravity.upDirection)
-	camera.rotation = rot
-	rotEuler = rot:euler()
+	camera.rotation = transitionInfo.startRotation
+	rotEuler = camera.rotation:euler()
 	gravityChaser = gravity.upRotation
 end
 

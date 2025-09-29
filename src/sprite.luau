@@ -9,8 +9,7 @@ function Sprite.Create(image: types.Image): types.Sprite
 	setmetatable(sprite, Sprite)
 	sprite.image = image
 	sprite.transform = Transform.identity
-	sprite.transform.scale.y = image.resolution.x
-	sprite.transform.scale.z = image.resolution.y
+	sprite.transform.scale = Vec3.new(0, image.resolution.x, image.resolution.y)
 	sprite.id = image.id .. ".sprite"
 	return sprite
 end

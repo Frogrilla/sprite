@@ -23,7 +23,7 @@ function Manager.LoadImages(self: types.Manager, data)
 		local image = Loader.LoadImage(datum)
 		if image then 
 			table.insert(self.images, image)
-			print("Loade image: " .. image.id)
+			print("Loaded image: " .. image.id)
 		end
 	end
 end

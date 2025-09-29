@@ -1,6 +1,9 @@
 local types = require("types")
 local Utils = require("utils")
 
+local PIXEL_CUTOFF = 0.3 -- 0.5 is exact but some spill is good
+local PIXEL_SIZE_FACTOR = 1.1 -- Use a slighly larger scale than is calculated
+
 export type Indexed = types.Image&{
 	pallete : {LinearColor},
 	segments : {{color : number, length : number}}
@@ -68,21 +71,23 @@ end
 function Indexed.Blit(self: Indexed, transform: Transform)
 	local y = 0
 	local z = 0
-	local size = transform.scale.z / self.resolution.y
+	local size = transform.scale.z / self.resolution.y * PIXEL_SIZE_FACTOR
+	local p1_offset = Vec2.new(1/self.resolution.x * PIXEL_CUTOFF, 1/self.resolution.y * PIXEL_CUTOFF)
+	local p2_offset = Vec2.new(-1/self.resolution.x * PIXEL_CUTOFF, 1/self.resolution.y * PIXEL_CUTOFF)
 	for i,segment in ipairs(self.segments) do
 
 		local col = self.pallete[segment.color]
 		
 		-- col[3] is a hacky way to access LinearColor::A - At time of writing the member isnt accessible in the normal method
 		if col[3] > 0 then
-			local p1 = Utils.ApplyTransformation(Vec3.new(0, y-0.5, z+0.5), transform)
-			local p2 = Utils.ApplyTransformation(Vec3.new(0, y-0.5 + ((segment.length)/self.resolution.x), z+0.5), transform)
+			local p1 = Utils.ApplyTransformation(Vec3.new(0, y-0.5+p1_offset.x, z+0.5+p1_offset.y), transform)
+			local p2 = Utils.ApplyTransformation(Vec3.new(0, y-0.5+p2_offset.x + ((segment.length)/self.resolution.x), z+0.5+p2_offset.y), transform)
 
 			WorldDraw.drawLine(p1, p2, col.R, col.G, col.B, size, 0)
 		end
 
 		y += segment.length / self.resolution.x
-		if y > (1 - (1/self.resolution.x) + 0.0001) then -- Was if y >= 1
+		if y > (1 - (0.99/self.resolution.x)) then -- Was if y >= 1
 			z -= 1/self.resolution.y
 			y = 0
 		end

@@ -220,6 +220,23 @@ function Presenter.Tick(self: Presenter)
 		return
 	end
 
+	self.editIndex = self.cycleIndex
+
+	if Input.getKeyDown(Input.Key.RightBracket) then
+		self:DoCycle(1)
+		if DO_FOCUS then
+			camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+			camera.rotation = sprite.transform.rotation
+		end
+	elseif Input.getKeyDown(Input.Key.LeftBracket) then
+		self:DoCycle(-1)
+		if DO_FOCUS then
+			camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+			camera.rotation = sprite.transform.rotation
+		end
+	end
+
+
 	local frame = getGameData()
 	local user = frame:getPlayerByName(self.username)
 	if not user then return end

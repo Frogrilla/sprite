@@ -215,7 +215,7 @@ function Manager.Tick(self: types.Manager)
 	if self.editing then
 		WorldDraw.clear()
 		for i,sprite in ipairs(self.sprites) do
-			sprite:DebugDraw(if i == self.spriteIndex then Vec3.new(0.3,1,0.3) else Vec3.new(0,1,0))
+			sprite:DebugDraw(if i == self.spriteIndex then Vec3.new(0.6,1,0.6) else Vec3.new(0,1,0))
 		end
 	end
 end

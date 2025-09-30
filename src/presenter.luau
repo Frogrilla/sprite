@@ -1,5 +1,7 @@
 local types = require("types")
 
+local DO_FOCUS = true
+
 export type Presenter = {
 	manager : types.Manager,
 	username : string,
@@ -204,11 +206,12 @@ end
 
 function Presenter.Tick(self: Presenter)
 
+	local sprite = self.manager.sprites[self.spriteIndex]
+	if not sprite then return end
+
 	if self.manager.editing then
 
 		self.cycleIndex = 1
-
-		local sprite = self.manager.sprites[self.spriteIndex]
 
 		if sprite and sprite.image.id ~= self.imageCycle[1] then
 			self:UpdateSlide()
@@ -225,11 +228,21 @@ function Presenter.Tick(self: Presenter)
 		if not self.justCycled then
 			self:DoCycle(1)
 			self.justCycled = true
+			if DO_FOCUS then
+				camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+				camera.rotation = sprite.transform.rotation
+			end
 		end
 	elseif user.leftThrusterActive then
 		if not self.justCycled then
 			self:DoCycle(-1)
 			self.justCycled = true
+			camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+			camera.rotation = sprite.transform.rotation
+			if DO_FOCUS then
+				camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+				camera.rotation = sprite.transform.rotation
+			end
 		end
 	else
 		self.justCycled = false

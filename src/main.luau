@@ -25,6 +25,11 @@ function onTransitionBegin(transitionInfo: Transition)
 	gravityChaser = gravity.upRotation
 end
 
+function onTransitionEnd(transitionInfo: Transition)
+	camera.positionSmoothing = 0.1
+	camera.rotationSmoothing = 0.01
+end
+
 function onGui()
 	manager:OnGui()
 	presenter:OnGui()

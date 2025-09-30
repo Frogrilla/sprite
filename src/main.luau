@@ -5,7 +5,6 @@ local manager = Manager.Create()
 local presenter = Presenter.Create(manager)
 
 local speed = 1000
-local rotEuler = Vec3.zeroVector
 local gravityChaser = gravity.upRotation
 
 if config.images then
@@ -21,13 +20,12 @@ function onTransitionBegin(transitionInfo: Transition)
 	camera.fieldOfView = transitionInfo.startFieldOfView
 
 	camera.rotation = transitionInfo.startRotation
-	rotEuler = camera.rotation:euler()
 	gravityChaser = gravity.upRotation
 end
 
 function onTransitionEnd(transitionInfo: Transition)
 	camera.positionSmoothing = 0.1
-	camera.rotationSmoothing = 0.01
+	camera.rotationSmoothing = 0.1
 end
 
 function onGui()
@@ -36,8 +34,6 @@ function onGui()
 end
 
 function tick(dt: number)
-	manager:Tick()
-	presenter:Tick()
 
 	local movement = Vec3.zeroVector
 	if Input.getKey(Input.Key.W) then
@@ -63,6 +59,11 @@ function tick(dt: number)
 
 	local lookInputTargetDelta = Vec3.zeroVector
 
+	local rotEuler = (gravityChaser:inverse() * camera.rotation):euler()
+
+	-- get rid of roll
+	rotEuler.x *= math.exp(-16 * dt)
+
 	-- Mouse
 	local mouse = Input.getMouseDelta()
 	if mouse and mouse.x then
@@ -85,5 +86,8 @@ function tick(dt: number)
 	rotEuler += lookInputTargetDelta
 	camera.rotation = gravityChaser * Quat.fromEuler(rotEuler.x, rotEuler.y, rotEuler.z)
 
-	camera.position += camera.rotation:rotateVector(movement) * speed * dt * (if Input.getKey(Input.Key.LeftShift) then 1.5 else 1)
+	camera.position += camera.rotation:rotateVector(movement) * speed * dt * (if Input.getKey(Input.Key.LeftShift) then 3 else 1)
+
+	manager:Tick()
+	presenter:Tick()
 end

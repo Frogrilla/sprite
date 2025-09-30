@@ -26,6 +26,8 @@ function Manager.LoadImages(self: types.Manager, data)
 			print("Loaded image: " .. image.id)
 		end
 	end
+
+	table.sort(self.images, function(a: types.Image, b: types.Image) return a.id < b.id end)
 end
 
 function Manager.RenderAll(self: types.Manager)
@@ -129,34 +131,6 @@ function Manager.OnGui(self: types.Manager)
 					Gui.endCombo()
 				end
 
-				self.localEditing = Gui.checkbox("Use local space", self.localEditing)
-
-				Gui.setItemTooltip("Makes \'Translate\' and \'Rotate\' use the sprite's local axis instead of the world's")
-
-				sprite.transform.position = Gui.dragFloat3("Position", sprite.transform.position, 1, -100000, 100000)
-
-				local translation = Gui.dragFloat3("Translate", Vec3.zeroVector, 1, -1000, 1000)
-				if self.localEditing then
-					translation = sprite.transform.rotation:rotateVector(translation)
-				end
-				sprite.transform.position += translation
-
-				sprite.transform.scale = Gui.dragFloat3("Scale", sprite.transform.scale, 1, -100000, 100000)
-
-				self.scaleFactor = Gui.dragFloat("Scale Factor", self.scaleFactor, 0.1, 0.1, 2)
-				if Gui.button("Apply Scale") then
-					sprite.transform.scale *= self.scaleFactor
-				end
-
-				--Gui.dragFloat4("Rotation", sprite.transform.rotation, 0, -1, 1)
-
-				local rotation = Gui.dragFloat3("Rotate", Vec3.zeroVector, 1, -360, 360)
-				if self.localEditing then
-					sprite.transform.rotation *= Quat.fromEuler(rotation.x, rotation.y, rotation.z)
-				else
-					sprite.transform.rotation = Quat.fromEuler(rotation.x, rotation.y, rotation.z) * sprite.transform.rotation
-				end
-
 				if Gui.button("Bring to me") then
 					sprite.transform.position = camera.position
 				end
@@ -171,7 +145,7 @@ function Manager.OnGui(self: types.Manager)
 
 				Gui.setItemTooltip("Aligns the sprite with the spectator's orientation")
 
-				-- Gui.sameLine()
+				Gui.sameLine()
 
 				if Gui.button("Locate") then
 					camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
@@ -180,13 +154,50 @@ function Manager.OnGui(self: types.Manager)
 
 				Gui.setItemTooltip("Brings the camera in front of the sprite and makes it look at it")
 
-				Gui.sameLine()
 
-				if Gui.button("Reset scale") then
-					sprite.transform.scale = Vec3.new(0, sprite.image.resolution.x, sprite.image.resolution.y)
+				if Gui.collapsingHeader("Transform") then
+					
+					Gui.indent()
+
+					self.localEditing = Gui.checkbox("Use local space", self.localEditing)
+
+					Gui.setItemTooltip("Makes \'Translate\' and \'Rotate\' use the sprite's local axis instead of the world's")
+
+					sprite.transform.position = Gui.dragFloat3("Position", sprite.transform.position, 1, -100000, 100000)
+
+					local translation = Gui.dragFloat3("Translate", Vec3.zeroVector, 1, -1000, 1000)
+					if self.localEditing then
+						translation = sprite.transform.rotation:rotateVector(translation)
+					end
+					sprite.transform.position += translation
+
+					sprite.transform.scale = Gui.dragFloat3("Scale", sprite.transform.scale, 1, -100000, 100000)
+
+					self.scaleFactor = Gui.dragFloat("Scale Factor", self.scaleFactor, 0.1, 0.1, 2)
+					if Gui.button("Apply Scale") then
+						sprite.transform.scale *= self.scaleFactor
+					end
+
+					Gui.sameLine()
+
+					if Gui.button("Reset scale") then
+						sprite.transform.scale = Vec3.new(0, sprite.image.resolution.x, sprite.image.resolution.y)
+					end
+
+					Gui.setItemTooltip("Resets the sprite's scale to match its image")
+
+					--Gui.dragFloat4("Rotation", sprite.transform.rotation, 0, -1, 1)
+
+					local rotation = Gui.dragFloat3("Rotate", Vec3.zeroVector, 1, -360, 360)
+					if self.localEditing then
+						sprite.transform.rotation *= Quat.fromEuler(rotation.x, rotation.y, rotation.z)
+					else
+						sprite.transform.rotation = Quat.fromEuler(rotation.x, rotation.y, rotation.z) * sprite.transform.rotation
+					end
+
+					Gui.unindent()
+
 				end
-
-				Gui.setItemTooltip("Resets the sprite's scale to match its image")
 
 			end
 		else

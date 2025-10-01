@@ -1,9 +1,9 @@
 local Manager = require("manager")
 local manager = Manager.Create()
 
-local speed = 1000
-local rotEuler = Vec3.zeroVector
 local gravityChaser = gravity.upRotation
+local speed = 1000
+local roll = 0
 
 if config.images then
 	manager:LoadImages(config.images)
@@ -18,7 +18,6 @@ function onTransitionBegin(transitionInfo: Transition)
 	camera.fieldOfView = transitionInfo.startFieldOfView
 
 	camera.rotation = transitionInfo.startRotation
-	rotEuler = camera.rotation:euler()
 	gravityChaser = gravity.upRotation
 end
 
@@ -57,23 +56,28 @@ function tick(dt: number)
 	local mouse = Input.getMouseDelta()
 	if mouse and mouse.x then
 		-- Yaw
-		lookInputTargetDelta.z += mouse.x * 2
-		-- Pitch
-		lookInputTargetDelta.y += mouse.y * 2
+		if Input.getKey(Input.Key.RightMouseButton) then
+			roll += mouse.x / 2.0
+		else
+			lookInputTargetDelta.z += mouse.x * 2
+			-- Pitch
+			lookInputTargetDelta.y += mouse.y * 2
+		end
 	end
 
-	if gravityChaser ~= gravity.upRotation and gravity.strength ~= 0 then
-		local inputTotal = lookInputTargetDelta:length()
-		local nextGravityChaser = Quat.slerp(gravityChaser, gravity.upRotation, inputTotal * 10 * dt)
-
-		local nextRotation = nextGravityChaser:inverse()
-			* Quat.fromXZ(camera.rotation:getForwardVector(), nextGravityChaser:rotateVector(Vec3.new(0, 0, 1)))
-		rotEuler = nextRotation:euler() + Vec3.new(rotEuler.x, 0, 0) -- preserve existing roll
-		gravityChaser = nextGravityChaser
+	if Input.getKeyUp(Input.Key.RightMouseButton) then
+		if math.abs(roll) < 10 then roll = 0 end
 	end
 
-	rotEuler += lookInputTargetDelta
-	camera.rotation = gravityChaser * Quat.fromEuler(rotEuler.x, rotEuler.y, rotEuler.z)
+	gravityChaser = Quat.slerp(gravityChaser, gravity.upRotation, math.exp(-2*dt))
 
+	camera.rotation *= Quat.fromEuler(0, lookInputTargetDelta.y, lookInputTargetDelta.z)
+	local rot = (gravityChaser:inverse() * camera.rotation):euler()
+	if manager.updateRoll then
+		roll = rot.x
+		manager.updateRoll = false
+	end
+	rot.x = roll + (rot.x-roll) * math.exp(-16 * dt)
+	camera.rotation = gravityChaser * Quat.fromEuler(rot.x, rot.y, rot.z)
 	camera.position += camera.rotation:rotateVector(movement) * speed * dt * (if Input.getKey(Input.Key.LeftShift) then 1.5 else 1)
 end

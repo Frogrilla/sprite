@@ -15,6 +15,7 @@ function Manager.Create()
 	manager.log = ""
 	manager.localEditing = true
 	manager.scaleFactor = 1
+	manager.updateRoll = false
 	return manager
 end
 
@@ -150,6 +151,7 @@ function Manager.OnGui(self: types.Manager)
 				if Gui.button("Locate") then
 					camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
 					camera.rotation = sprite.transform.rotation
+					self.updateRoll = true
 				end
 
 				Gui.setItemTooltip("Brings the camera in front of the sprite and makes it look at it")
@@ -217,6 +219,7 @@ function Manager.OnGui(self: types.Manager)
 					if Gui.selectable(tostring(i) .. ": " .. sprite.id, false) then
 						camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
 						camera.rotation = sprite.transform.rotation
+						self.updateRoll = true
 					end
 				end
 				Gui.endListBox()

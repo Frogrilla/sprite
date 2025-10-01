@@ -23,6 +23,7 @@ export type Manager = {
 	spriteIndex : number,
 	localEditing : boolean,
 	scaleFactor : number,
+	updateRoll : boolean,
 
 	Create : () -> Manager,
 	RenderAll : (self: Manager) -> nil,

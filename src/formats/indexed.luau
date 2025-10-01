@@ -1,8 +1,14 @@
 local types = require("types")
 local Utils = require("utils")
 
-local PIXEL_CUTOFF = 0.4 -- The factor by which we shorten lines based on their size and the image ratio (make this number a bit smaller than 0.5 to hide gaps when rotating, set to 0.5 for low resolution images)
-local PIXEL_SIZE_FACTOR = 1.1 -- Use a slighly larger scale than is calculated
+-- The factor by which we shorten lines based on their size and the image ratio 
+-- 0.5 is the 'Correct' value but may show gaps when the image is rotated relative to you (along local x)
+-- Lower values reduce gaps but the lines will overlap slightly which may cause the image to shift based on your view
+-- Higher values increase gaps but reduce overlapping
+-- If you want to reduce the shifting effect, try making the image higher resolution
+local PIXEL_CUTOFF = 0.4
+-- How much to multiply the calculated line size by
+local PIXEL_SIZE_FACTOR = 1.1
 
 export type Indexed = types.Image&{
 	pallete : {LinearColor},

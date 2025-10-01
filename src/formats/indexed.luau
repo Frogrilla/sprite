@@ -49,6 +49,9 @@ function Indexed.Load(data): Indexed
 	return indexed
 end
 
+-- Not used anywhere
+-- This can offer more accurate images with support for traslucency but at the cost of lag as triangles are very inefficient
+-- Maybe a future update to Sprite will offer a way to use triangles efficiently
 function Indexed.BlitLAGGY(self: Indexed, transform: Transform)
 	local y = 0
 	local z = 0

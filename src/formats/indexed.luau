@@ -1,8 +1,14 @@
 local types = require("types")
 local Utils = require("utils")
 
-local PIXEL_CUTOFF = 0.3 -- 0.5 is exact but some spill is good
-local PIXEL_SIZE_FACTOR = 1.1 -- Use a slighly larger scale than is calculated
+-- The factor by which we shorten lines based on their size and the image ratio 
+-- 0.5 is the 'Correct' value but may show gaps when the image is rotated relative to you (along local x)
+-- Lower values reduce gaps but the lines will overlap slightly which may cause the image to shift based on your view
+-- Higher values increase gaps but reduce overlapping
+-- If you want to reduce the shifting effect, try making the image higher resolution
+local PIXEL_CUTOFF = 0.4
+-- How much to multiply the calculated line size by
+local PIXEL_SIZE_FACTOR = 1.1
 
 export type Indexed = types.Image&{
 	pallete : {LinearColor},
@@ -72,8 +78,9 @@ function Indexed.Blit(self: Indexed, transform: Transform)
 	local y = 0
 	local z = 0
 	local size = transform.scale.z / self.resolution.y * PIXEL_SIZE_FACTOR
-	local p1_offset = Vec2.new(1/self.resolution.x * PIXEL_CUTOFF, 1/self.resolution.y * PIXEL_CUTOFF)
-	local p2_offset = Vec2.new(-1/self.resolution.x * PIXEL_CUTOFF, 1/self.resolution.y * PIXEL_CUTOFF)
+	local ratio = (transform.scale.z/self.resolution.y) / (transform.scale.y/self.resolution.x)
+	local p1_offset = Vec2.new(1/self.resolution.x * PIXEL_CUTOFF * ratio, 1/self.resolution.y * PIXEL_CUTOFF)
+	local p2_offset = Vec2.new(-1/self.resolution.x * PIXEL_CUTOFF * ratio, 1/self.resolution.y * PIXEL_CUTOFF)
 	for i,segment in ipairs(self.segments) do
 
 		local col = self.pallete[segment.color]

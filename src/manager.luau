@@ -139,7 +139,7 @@ function Manager.OnGui(self: types.Manager)
 
 				Gui.sameLine()
 
-				if Gui.button("Look at me") then
+				if Gui.button("Align rotation") then
 					sprite.transform.rotation = camera.rotation
 				end
 
@@ -204,7 +204,23 @@ function Manager.OnGui(self: types.Manager)
 			if Gui.button("Edit") then
 				self.editing = true
 			end
-			Gui.text(self.log)
+
+			if Gui.collapsingHeader("Render Log") then
+				Gui.indent()
+				Gui.text(self.log)
+				Gui.unindent()
+			end
+
+			Gui.text("Click on a sprite to locate it")
+			if Gui.beginListBox("##sprite_list") then
+				for i,sprite in self.sprites do
+					if Gui.selectable(tostring(i) .. ": " .. sprite.id, false) then
+						camera.position = sprite.transform.position - sprite.transform.rotation:getForwardVector() * 500
+						camera.rotation = sprite.transform.rotation
+					end
+				end
+				Gui.endListBox()
+			end
 		end
 
 		Gui.unindent()

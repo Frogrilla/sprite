@@ -28,11 +28,8 @@ function Indexed.Load(data): Indexed
 	indexed.segments = {}
 
 	for i,col in ipairs(data.pallete) do
-		table.insert(indexed.pallete, LinearColor.new(
-			col.r/255,
-			col.g/255,
-			col.b/255,
-			col.a/255
+		table.insert(indexed.pallete, Utils.LinearColorFromSRGB(
+			col.r, col.g, col.b, col.a
 		))
 	end
 

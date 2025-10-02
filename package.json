@@ -1,7 +1,7 @@
 {
 	"name": "frogrilla.sprite",
 	"displayName": "Sprite",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Allows images to be loaded and drawn with sprites. Sprite Config Generator is required to import images.",
 	"main": "src/main.luau",
 	"keywords": [

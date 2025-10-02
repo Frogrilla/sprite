@@ -109,7 +109,10 @@ function Manager.OnGui(self: types.Manager)
 				Gui.sameLine()
 
 				if Gui.button("Duplicate " .. Icon.Copy) then
-					table.insert(self.sprites, table.clone(sprite))
+					local copy = Sprite.Create(sprite.image)
+					copy.transform = table.clone(sprite.transform)
+					copy.id ..= " (copy)"
+					table.insert(self.sprites, copy)
 					self.spriteIndex = #self.sprites
 				end
 
